@@ -1,9 +1,9 @@
 {
     "id": "mailtrap",
     "name": "Mailtrap",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Send site email through Mailtrap - live sending, or a sandbox inbox that catches every email so nothing reaches real customers while testing. Appears as a provider on the Email settings page.",
-    "category": "other",
+    "category": "email",
     "author": {
         "name": "Gavin Cox"
     },
