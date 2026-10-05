@@ -1,0 +1,55 @@
+{
+    "id": "mailtrap",
+    "name": "Mailtrap",
+    "version": "1.0.0",
+    "description": "Send site email through Mailtrap - live sending, or a sandbox inbox that catches every email so nothing reaches real customers while testing. Appears as a provider on the Email settings page.",
+    "category": "other",
+    "author": {
+        "name": "Gavin Cox"
+    },
+    "license": "proprietary",
+
+    "requires": {
+        "osmium": ">=1.0.0",
+        "php": ">=8.1",
+        "services": []
+    },
+
+    "autoload": [
+        "models"
+    ],
+
+    "admin": {
+        "menu": {
+            "section": "Content",
+            "items": [
+                {
+                    "id": "mailtrap",
+                    "label": "Mailtrap",
+                    "icon": "bx bx-envelope",
+                    "route": "admin/settings/mailtrap",
+                    "activePattern": "admin/settings/mailtrap",
+                    "role": null
+                }
+            ]
+        },
+        "routes": {
+            "admin/settings/mailtrap": {
+                "controller": "controllers/MailtrapController.php",
+                "class": "Osmium\\Services\\Mailtrap\\Controllers\\MailtrapController",
+                "method": "index",
+                "title": "Mailtrap"
+            }
+        }
+    },
+
+    "hooks": {
+        "mail.providers": [
+            "Osmium\\Services\\Mailtrap\\Models\\MailtrapMailProvider::provider"
+        ]
+    },
+
+    "setup": {
+        "postInstallNote": "Enter an API token on the Mailtrap settings page and choose Live sending (a verified sending domain is needed) or Sandbox (enter the inbox ID). Then choose Mailtrap as the Provider on Settings > Email and use Send test email."
+    }
+}
