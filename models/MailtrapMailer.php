@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Osmium\Services\Mailtrap\Models;
 
-use Osmium\Core\Library\MailerInterface;
+use Osmium\Core\Library\PlainTextMailer;
 
 /**
  * Sends mail via Mailtrap's Email Sending API (JSON POST with a bearer API
@@ -15,7 +15,7 @@ use Osmium\Core\Library\MailerInterface;
  * From address and name; the token, mode and inbox come from this service's
  * own config.
  */
-class MailtrapMailer implements MailerInterface
+class MailtrapMailer implements PlainTextMailer
 {
     private const LIVE_URL = 'https://send.api.mailtrap.io/api/send';
     private const SANDBOX_URL_TEMPLATE = 'https://sandbox.api.mailtrap.io/api/send/%s';
@@ -26,10 +26,15 @@ class MailtrapMailer implements MailerInterface
      * @param array<int, array{email: string, name?: string}> $recipients
      * @return array{success: bool, error?: string}
      */
-    public function send(array $recipients, string $subject, string $htmlBody): array
+    public function send(array $recipients, string $subject, string $htmlBody, ?string $textBody = null): array
     {
         try {
-            $this->postMessage($recipients, $subject, $htmlBody);
+            $this->postMessage(
+                recipients: $recipients,
+                subject: $subject,
+                htmlBody: $htmlBody,
+                textBody: $textBody,
+            );
             return ['success' => true];
         } catch (\Exception $e) {
             return ['success' => false, 'error' => $e->getMessage()];
@@ -39,7 +44,7 @@ class MailtrapMailer implements MailerInterface
     /**
      * @param array<int, array{email: string, name?: string}> $recipients
      */
-    private function postMessage(array $recipients, string $subject, string $htmlBody): void
+    private function postMessage(array $recipients, string $subject, string $htmlBody, ?string $textBody): void
     {
         $mailtrap = MailtrapConfig::get();
 
@@ -64,15 +69,20 @@ class MailtrapMailer implements MailerInterface
             $recipients,
         );
 
+        $message = [
+            'from' => $from,
+            'to' => $to,
+            'subject' => $subject,
+            'html' => $htmlBody,
+        ];
+        $hasText = $textBody !== null;
+        if ($hasText) $message['text'] = $textBody;
+        $payload = \json_encode($message);
+
         $ch = \curl_init($url);
         \curl_setopt_array($ch, [
             CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => \json_encode([
-                'from' => $from,
-                'to' => $to,
-                'subject' => $subject,
-                'html' => $htmlBody,
-            ]),
+            CURLOPT_POSTFIELDS => $payload,
             CURLOPT_HTTPHEADER => [
                 'Authorization: Bearer ' . $mailtrap->apiToken,
                 'Content-Type: application/json',
