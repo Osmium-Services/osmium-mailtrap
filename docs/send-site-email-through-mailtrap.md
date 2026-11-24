@@ -1,6 +1,7 @@
 ---
 title: Send your site's email through Mailtrap
 tags: email, mailtrap, sandbox, testing, test inbox, mail provider
+page: admin/settings/mailtrap
 ---
 
 **Mailtrap** can send real email, or catch it in a test inbox so nothing reaches customers while you test.
